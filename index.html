@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talão de Pedido - Ótica Líder</title>
+	
+	<link rel="icon" href="formas/icone_lider.png" type="image/png">
+	
+    <style>
+        /* ==========================================================================
+           1. CONFIGURAÇÕES GERAIS E ESTRUTURA (TELA)
+           ========================================================================== */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .talao-container {
+			width: 100%;
+			max-width: 148mm;
+			height: auto;                     
+			background-color: #ffffff;
+			border: 2px solid #b32429;
+			border-radius: 8px;
+			padding: 4px 8px;                
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;      
+			gap: 2px;                         
+			overflow: hidden;
+            position: relative;
+		}
+
+        .header {
+            text-align: center;
+            margin-bottom: 2px;
+            position: relative;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            font-style: italic;
+            color: #1a4a75;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        .logo span {
+            color: #b32429;
+        }
+
+        /* NOVO: Botão discreto no canto superior direito */
+                /* SUBSTITUA O CÓDIGO DO SEU BOTÃO POR ESTE TRECHO NO BLOCO 1: */
+        .btn-print-top {
+            position: absolute;
+            right: 10px;
+            top: 40%;
+            transform: translateY(-50%);
+            background: #b32429; /* Vermelho alterado para um tom mais claro e suave */
+            color: white;
+            border: none;
+            border-radius: 9px;
+            padding: 3px 10px;    /* Diminuído o preenchimento para encolher o botão */
+            font-size: 10px;     /* Letra reduzida de 13px para 11px */
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .btn-print-top:hover {
+            background: #d94145; /* Tom ao passar o mouse também ajustado para acompanhar */
+        }
+        .btn-print-top:active {
+            transform: translateY(-30%) scale(0.95);
+        }
+
+        /* ==========================================================================
+           2. COMPONENTES DE FORMULÁRIO E GRIDS
+           ========================================================================== */
+        .top-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 3px;
+            margin-bottom: 2px;
+        }
+        
+        .field-box {
+            background-color: #fdf2f3;
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #b32429;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .field-box input {
+            background: transparent;
+            border: none !important;
+            outline: none;
+            width: 100%;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 1px;
+            color: #000;
+            box-sizing: border-box;
+        }
+
+        .field-box input[type="date"] {
+            font-weight: normal !important; 
+            color: #000000; 
+        }
+
+        .field-box input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(18%) sepia(83%) saturate(3946%) hue-rotate(346deg) brightness(80%) contrast(100%);
+            opacity: 1 !important; 
+            cursor: pointer;
+        }
+
+        .checkbox-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; 
+            gap: 14px;
+            margin-bottom: 2px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #b32429;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            font-size: 9px;
+            font-weight: bold;
+            color: #b32429;
+        }
+        .checkbox-item input {
+            margin: 0;
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+        .armacao-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px 12px;
+            margin-bottom: 4px;
+            width: 100%;
+        }
+        .armacao-grid .checkbox-item {
+            font-size: 8.5px; 
+            color: #b32429;  
+        }
+		.armacao-grid .checkbox-item input {
+            transform: scale(1) !important; 
+            cursor: pointer;
+            margin: 0;
+		}
+
+        /* ==========================================================================
+           3. ESTILIZAÇÃO DA TABELA DE GRAU
+           ========================================================================== */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: visible;
+            margin: 1px 0;
+            border: 1px solid #b32429;
+            border-radius: 0px;
+            box-sizing: border-box;
+        }
+        
+        .table-grau {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5px;
+            text-align: center;
+            table-layout: fixed;
+        }
+        .table-grau th {
+            background-color: #b32429;
+            color: white;
+            padding: 2px 1px;
+            font-weight: bold;
+            font-size: 8.5px;
+            border: 1px solid #b32429;
+            word-wrap: break-word;
+        }
+        .table-grau td {
+            border: 1px solid #b32429;
+            background-color: #ffffff;
+            padding: 2px 1px;
+            font-size: 11px;
+        }
+        .table-grau input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 13px; 
+            font-weight: bold;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .side-label {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            font-weight: bold;
+            font-size: 7.5px !important;
+            padding: 1px 1px !important;
+            border: 1px solid #b32429;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .eye-label {
+            background-color: #ffffff !important;
+            color: #b32429 !important;
+            font-weight: bold;
+            font-size: 10px !important;
+            border: 1px solid #b32429;
+            text-align: center;
+        }
+
+        /* ==========================================================================
+           4. CAIXA DE FORMAS E DETALHES TÉCNICOS
+           ========================================================================== */
+        .shapes-container {
+            border: 1px solid #b32429;
+            background-color: #ffffff;
+            border-radius: 4px;
+            padding: 4px;
+            margin-bottom: 2px;
+            box-sizing: border-box;
+        }
+        .shapes-title {
+            font-size: 8.5px;
+            color: #b32429;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .shapes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .shape-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0px;          
+            font-size: 8.5px;   
+            font-weight: bold;
+            color: #b32429;
+		}
+		.shape-item input {
+            margin: 0;
+            transform: scale(1); 
+            cursor: pointer;
+		}
+
+        .lens-shape {
+            width: 45px !important;         
+            height: 18px !important;        
+            object-fit: contain !important; 
+            background-color: transparent !important;
+            border: none !important;        
+            border-radius: 0px !important;  
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        @media (max-width: 768px) {
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-grau {
+                min-width: 580px;
+                table-layout: auto;
+            }
+            .logo {
+                font-size: 22px;
+            }
+        }
+        
+        @media print {
+            @page {
+                margin: 0;       
+            }
+            html, body {
+                background: none;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .btn-print-top {
+                display: none !important;
+            }
+            .table-wrapper {
+                overflow: visible !important;
+                border: 1px solid #b32429 !important;
+                margin: 1px 0 !important; 
+            }
+            .table-grau {
+                min-width: 100% !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+            .talao-container {
+                width: 148mm !important;
+                height: 210mm !important; 
+                max-width: 148mm !important;
+                max-height: 210mm !important;
+                border: 2px solid #b32429 !important; 
+                box-shadow: none !important;
+                border-radius: 8px !important;       
+                padding: 4px 8px !important;   
+                margin: 0 auto !important;
+                page-break-inside: avoid !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important; 
+                gap: 2px !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .header { margin-bottom: 2px !important; }
+            .logo { font-size: 24px !important; }
+            .top-grid { gap: 2px !important; margin-bottom: 2px !important; }
+            .field-box { padding: 2px 4px !important; }
+            .shapes-container { padding: 4px !important; }
+            .armacao-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 4px 12px !important; }
+            .armacao-grid .checkbox-item { font-size: 8.5px !important; color: #b32429 !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="talao-container">
+        <!-- Bloco de Identificação Superior -->
+        <div>
+            <div class="header">
+               <!-- <div class="logo">Ótica<span>Líder</span></div> -->
+			   <div class="logo" style="margin-top: 0px; margin-bottom: -1px;">
+				<img src="formas/logo_lider_transparente.png" alt="Logo" style="max-height: 38px; width: auto; display: inline-block; vertical-align: top;">
+				</div>
+
+                <!-- NOVO BOTÃO NO CANTO SUPERIOR DIREITO -->
+                <button type="button" class="btn-print-top" onclick="window.print()">🖨️ Imprimir</button>
+            </div>
+
+            <div class="top-grid" style="grid-template-columns: 1fr 1.5fr 1.5fr 1fr;">
+                <div class="field-box">CÓD.:<input type="text"></div>
+                <div class="field-box">ÓPTICA:<input type="text"></div>
+                <div class="field-box">Solicitado por:<input type="text"></div>
+                <div class="field-box" style="background-color: #fff; border: 1px solid #b32429;">
+                    Sua O.S.:
+                    <input type="text" style="color: #000000; font-weight: bold; text-align: center; font-size: 14px; border: none; margin: 0;">
+                </div>
+            </div>
+
+            <div class="top-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="field-box">Data:<input type="date" id="data-atual"></div>
+                <div class="field-box">Previsão entrega:<input type="date"></div>
+                <div class="field-box">Nº ped. Lab.:<input type="text"></div>
+            </div>
+
+            <div class="checkbox-row">
+                <div class="checkbox-item"><input type="checkbox"> Com Montagem</div>
+                <div class="checkbox-item"><input type="checkbox"> Sem Montagem</div>
+                <div class="checkbox-item"><input type="checkbox"> Pronta</div>
+                <div class="checkbox-item"><input type="checkbox"> Surfaçada</div>
+            </div>
+
+            <div class="top-grid" style="grid-template-columns: 1fr 3fr;">
+                <div class="field-box">Cód. WEB:<input type="text"></div>
+                <div class="field-box">Produto:<input type="text"></div>
+            </div>
+            <div class="top-grid" style="grid-template-columns: 2fr 2fr;">
+                <div class="field-box">Antireflexo:<input type="text"></div>
+                <div class="field-box">Coloração:<input type="text"></div>
+            </div>
+            <div class="top-grid" style="grid-template-columns: 2fr 2fr;">
+                <div class="field-box">Outros:<input type="text"></div>
+                <div class="field-box">Base:<input type="text"></div>
+            </div>
+        </div>
+        
+        <!-- Tabela de Grau -->
+        <div class="table-wrapper">
+            <table class="table-grau">
+                <thead>
+                    <tr>
+                        <th style="width: 7%;"></th>
+                        <th style="width: 7%;"></th>
+                        <th style="width: 12.5%;">Esf.</th>
+                        <th style="width: 12.5%;">Cil.</th>
+                        <th style="width: 11%;">Eixo</th>
+                        <th style="width: 12.5%;">Adição</th>
+                        <th style="width: 11%;">DNP</th>
+                        <th style="width: 15%;">Altura de montagem</th>
+                        <th style="width: 11.5%;">Prisma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="2" class="side-label" style="vertical-align: middle;">LONGE</td>
+                        <td class="eye-label">O.D.</td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-eixo"></td>
+                        <td><input type="text" class="format-adicao"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text" class="format-prisma"></td>
+                    </tr>
+                    <tr>
+                        <td class="eye-label">O.E.</td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-eixo"></td>
+                        <td><input type="text" class="format-adicao"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text" class="format-prisma"></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" class="side-label" style="vertical-align: middle;">PERTO</td>
+                        <td class="eye-label">O.D.</td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-eixo"></td>
+                        <td><input type="text" class="format-adicao"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text" class="format-prisma"></td>
+                    </tr>
+                    <tr>
+                        <td class="eye-label">O.E.</td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-grau"></td>
+                        <td><input type="text" class="format-eixo"></td>
+                        <td><input type="text" class="format-adicao"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text"></td>
+                        <td><input type="text" class="format-prisma"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Bloco Inferior Técnico e do Cliente -->
+        <div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 4px; align-items: center;">
+                <div class="top-grid" style="grid-template-columns: repeat(4, 1fr); gap: 3px; margin-bottom: 0;">
+                    <div class="field-box" style="font-size: 7.5px;">Vertical (V):<input type="text"></div>
+                    <div class="field-box" style="font-size: 7.5px;">Horizontal (H):<input type="text"></div>
+                    <div class="field-box" style="font-size: 7.5px;">Diagonal M. (M):<input type="text"></div>
+                    <div class="field-box" style="font-size: 7.5px;">Ponte (P):<input type="text"></div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; height: 65px; background: transparent; border-radius: 3px;">
+                    <img src="formas/diagrama_oculos.png" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Diagrama Óculos">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 6px; margin-bottom: 4px; align-items: center;">
+                <div style="display: flex; align-items: center; justify-content: center; height: 65px; background: transparent; border-radius: 3px;">
+                    <img src="formas/diagrama_angulos.png" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Diagrama Ângulos">
+                </div>
+                <div class="top-grid" style="grid-template-columns: 1fr 1.2fr 1.2fr; gap: 3px; margin-bottom: 0;">
+                    <div class="field-box" style="font-size: 7.5px;">Dist. Vértice (DV):<input type="text"></div>
+                    <div class="field-box" style="font-size: 7.5px;">Âng. Pantoscópico (AP):<input type="text"></div>
+                    <div class="field-box" style="font-size: 7.5px;">Âng. Frontal (AF):<input type="text"></div>
+                </div>
+            </div>
+
+            <div class="shapes-container">
+                <div class="shapes-title">Selecionar a forma aproximada da armação (apenas lentes surfaçadas).</div>
+                <div class="shapes-grid">
+                    <div class="shape-item"><img src="formas/forma13.png" class="lens-shape" alt="Forma 13"><input type="checkbox" id="f-1"><label for="f-1">13</label></div>
+                    <div class="shape-item"><img src="formas/forma14.png" class="lens-shape" alt="Forma 14"><input type="checkbox" id="f-2"><label for="f-2">14</label></div>
+                    <div class="shape-item"><img src="formas/forma15.png" class="lens-shape" alt="Forma 15"><input type="checkbox" id="f-3"><label for="f-3">15</label></div>
+                    <div class="shape-item"><img src="formas/forma16.png" class="lens-shape" alt="Forma 16"><input type="checkbox" id="f-4"><label for="f-4">16</label></div>
+                    <div class="shape-item"><img src="formas/forma17.png" class="lens-shape" alt="Forma 17"><input type="checkbox" id="f-5"><label for="f-5">17</label></div>
+                    <div class="shape-item"><img src="formas/forma18.png" class="lens-shape" alt="Forma 18"><input type="checkbox" id="f-6"><label for="f-6">18</label></div>
+                    <div class="shape-item"><img src="formas/forma19.png" class="lens-shape" alt="Forma 19"><input type="checkbox" id="f-7"><label for="f-7">19</label></div>
+                    <div class="shape-item"><img src="formas/forma20.png" class="lens-shape" alt="Forma 20"><input type="checkbox" id="f-8"><label for="f-8">20</label></div>
+					<div class="shape-item"><img src="formas/forma21.png" class="lens-shape" alt="Forma 21"><input type="checkbox" id="f-9"><label for="f-9">21</label></div>
+                </div>
+
+                <div class="shapes-title" style="text-align: left; margin-bottom: 4px;">TIPO DE ARMAÇÃO:</div>
+                <div class="armacao-grid">
+                    <div class="checkbox-item"><input type="checkbox"> Acetato</div>
+                    <div class="checkbox-item"><input type="checkbox"> Nylon</div>
+                    <div class="checkbox-item"><input type="checkbox"> Balgriff (pino)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Balgriff (parafuso)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Metal</div>
+                    <div class="checkbox-item"><input type="checkbox"> Fio de Aço</div>
+                    <div class="checkbox-item"><input type="checkbox"> Segurança</div>
+                    <div class="checkbox-item"><input type="checkbox"> Optyl</div>
+                </div>
+
+                <div class="field-box">Armação / Modelo / Cor / Marca:<input type="text"></div>
+            </div>
+
+            <div class="field-box" style="margin-bottom: 4px;">Condições do aro:<input type="text"></div>
+
+            <div class="shapes-title" style="text-align: left; margin-bottom: 2px;">INFORMAÇÕES DO USUÁRIO:</div>
+            <div class="top-grid" style="grid-template-columns: 3fr 1fr;">
+                <div class="field-box">NOME:<input type="text"></div>
+                <div class="field-box">INICIAIS:<input type="text"></div>
+            </div>
+            <div class="top-grid" style="grid-template-columns: 1.8fr 1.6fr 0.6fr; margin-bottom: 0;">
+                <div class="field-box">Usuário de qual lente?:<input type="text"></div>
+                <div class="field-box">Médico:<input type="text"></div>
+                <div class="field-box">CRM:<input type="text"></div>
+            </div>
+        </div>
+    </div> <!-- Fim do talao-container -->
+    <script>
+        function toggleShape(element) {
+            document.querySelectorAll('.shape-circle').forEach(circle => {
+                circle.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        document.querySelectorAll('.format-grau').forEach(input => {
+            input.addEventListener('blur', function() {
+                let valor = this.value.trim();
+                if (valor === "") return;
+
+                valor = valor.replace('.', ',');
+
+                let sinal = "";
+                if (valor.startsWith('+')) { 
+                    sinal = "+"; 
+                    valor = valor.substring(1); 
+                } else if (valor.startsWith('-')) { 
+                    sinal = "-"; 
+                    valor = valor.substring(1); 
+                } else {
+                    sinal = "+";
+                }
+
+                let numeroValido = parseFloat(valor.replace(',', '.'));
+
+                if (!isNaN(numeroValido)) {
+                    this.value = sinal + numeroValido.toFixed(2).replace('.', ',');
+                }
+            });
+        });
+
+        document.querySelectorAll('.format-eixo').forEach(input => {
+            input.addEventListener('blur', function() {
+                let valor = this.value.trim();
+                if (valor === "") return;
+
+                valor = valor.replace('*', '').replace('°', '');
+                this.value = valor + '°';
+            });
+        });
+
+        document.querySelectorAll('.format-prisma').forEach(input => {
+            input.addEventListener('blur', function() {
+                let valor = this.value.trim();
+                if (valor === "") return;
+
+                valor = valor.replace('.', ',').replace('*', '').replace('°', '');
+                this.value = valor + '°';
+            });
+        });
+
+        document.querySelectorAll('.format-adicao').forEach(input => {
+            input.addEventListener('blur', function() {
+                let valor = this.value.trim();
+                if (valor === "") return;
+
+                valor = valor.replace('.', ',');
+
+                let sinal = "";
+                if (valor.startsWith('+')) { 
+                    sinal = "+"; 
+                    valor = valor.substring(1); 
+                } else if (valor.startsWith('-')) { 
+                    sinal = "-"; 
+                    valor = valor.substring(1); 
+                } else {
+                    sinal = "+";
+                }
+
+                let numeroValido = parseFloat(valor.replace(',', '.'));
+
+                if (!isNaN(numeroValido)) {
+                    this.value = sinal + numeroValido.toFixed(2).replace('.', ',');
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const formFields = Array.from(document.querySelectorAll('input[type="text"], input[type="date"]'));
+                const index = formFields.indexOf(e.target);
+                
+                if (index > -1 && index < formFields.length - 1) {
+                    e.preventDefault(); 
+                    formFields[index + 1].focus(); 
+                }
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const campoData = document.getElementById('data-atual');
+            if (campoData) {
+                const dataBrasilia = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
+                
+                const ano = dataBrasilia.getFullYear();
+                const mes = String(dataBrasilia.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataBrasilia.getDate()).padStart(2, '0');
+                
+                campoData.value = `${ano}-${mes}-${dia}`;
+            }
+        });
+		
+		// Abre a tela de impressão nativa do navegador ao apertar CTRL+P
+		document.addEventListener("keydown", function(e) {
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault(); // Impede o comportamento padrão do navegador
+        window.print();     // Dispara a impressão configurada no script
+		}
+	});
+	
+
+    </script>
+</body>
+</html>
